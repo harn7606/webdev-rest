@@ -60,14 +60,58 @@ function dbRun(query, params) {
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    let query = "SELECT * FROM Codes";
+    let input = " WHERE code ="; // WHERE code = value to get the information for the code
+
+    for([key,value] of Object.entries(req.query)){
+        if(key == "code") {
+            let values = value.split(',');
+            for(i=0; i<values.length; i++){
+                query = query + input + values[i];
+                input = " OR code = ";
+            }
+        }
+    }
+
+    query = query + " Order by code";
+
+    databaseSelect(query, [])
+    .then((data) =>{
+        console.log(data);
+        res.status(200).type('json').send(data);
+    })
+    .catch((err) => {
+        res.status(200).type('html').send('Error! Invalid code'); // add what they should enter as code
+    })
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    let query = 'SELECT * FROM Neighborhoods'; 
+    let input = " WHERE neighborhood_number = "; //WHERE code = value to get information fpr the code
+
+    for([key,value] of Object.entries(req.query)){
+        if(key == "neighborhood_number"){
+            let values = value.split(",");
+            for(i=0; i<values.length; i++){
+                query = query + input + values[i];
+                input = " OR neighborhood_number = ";
+            }
+        }
+    }
+   
+    query = query + " Order by neighborhood_number ASC";
+
+    databaseSelect(query, [])
+    .then((data) =>{
+        console.log(data);
+        res.status(200).type('json').send(data);
+    })
+    .catch((err) => {
+        res.status(200).type('txt').send('Error! Invalid neighborhood number, try neighborhoods?neighborhood_number=1');
+    })
 });
 
 // GET request handler for crime incidents
