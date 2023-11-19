@@ -118,6 +118,12 @@ app.get('/neighborhoods', (req, res) => {
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
+    let query = 'SELECT * FROM Incidents';
+    let input = " WHERE ("
+
+    // limit
+    let limit = 100
+
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
