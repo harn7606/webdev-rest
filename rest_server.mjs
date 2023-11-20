@@ -93,7 +93,7 @@ app.get('/neighborhoods', (req, res) => {
     let input = " WHERE neighborhood_number = "; //WHERE code = value to get information fpr the code
 
     for(const [key,value] of Object.entries(req.query)){
-        if(key == "neighborhood_number"){
+        if(key === "neighborhood_number"){
             let values = value.split(",");
             for(let i=0; i<values.length; i++){
                 query = query + input + values[i];
@@ -119,12 +119,106 @@ app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
     let query = 'SELECT * FROM Incidents';
-    let input = " WHERE ("
+    let input = " WHERE (";
 
-    // limit
-    let limit = 100
+    //limit
+    let limit = 100;
+    /** 
+    for(const [key, value] of Object.entries(req.query)){
+        if(key === 'case_number'){
+            let values = value.split(",");
+            for(let i=0; i<values.length; i++){
+                query = query + input + "case_number = " + values[i];
+                input = " OR ";
+            }
+            input = ") AND ("
+        }
+        else if(key === 'start_date'){
+            query = query + input + "date(date_time) >= " + "'" +  value + "'";
+            input = ") AND (";
+        }
+        else if(key === 'end_date'){
+            query = query + input + "date(date_time) <= "  + "'" +  value + "'";
+            input = ") AND ("
+        }
+        else if(key === "code"){
+            let values = value.split(",");
+            for(let i=0; i<values.length; i++){
+                query = query + input + "code = " + values[i];
+                input = " OR ";
+            }
+            input = ") AND ("
+        }
+        else if(key === "incident"){
+            let values = value.split(",");
+            for(let i=0; i<values.length; i++){
+                query = query + input + "incident = " + values[i];
+                input = " OR ";
+            }
+            input = ") AND ("
+        }
+        else if(key === 'grid'){
+            let values = value.split(",");
+            for(let i=0; i<values.length; i++){
+                query = query + input + "police_grid = " + values[i];
+                input = " OR ";
+            }
+            input = ") AND ("
+        }
 
-    res.status(200).type('json').send({}); // <-- you will need to change this
+        else if(key === "block"){
+            let values = value.split(",");
+            for(let i=0; i<values.length; i++){
+                query = query + input + "block = " + values[i];
+                input = " OR ";
+            }
+            input = ") AND ("
+        }
+        else if(key === "neighborhood_number"){
+            let values = value.split(",");
+            for(let i=0; i<values.length; i++){
+                query = query + input + "neighborhood_number = " + values[i];
+                input = " OR ";
+            }
+            input = ") AND ("
+        }
+    }
+    */
+
+    for (const [key, value] of Object.entries(req.query)) {
+        if (key === 'case_number' || key === 'code' || key === 'incident' || key === 'police_grid' || key === 'neighborhood_number' || key === 'block') {
+            let values = value.split(",");
+            for (let i = 0; i < values.length; i++) {
+                query = query + input + `${key} = ${values[i]}`;
+                input = " OR ";
+            }
+            input = ") AND (";
+        } else if (key === 'start_date') {
+            query = query + input + "date(date_time) >= '" + value + "'";
+            input = ") AND (";
+        } else if (key === 'end_date') {
+            query = query + input + "date(date_time) <= '" + value + "'";
+            input = ") AND (";
+        }
+    }
+    // Set  limit
+    //query = query + " LIMIT " + limit;
+    //Sort by date 
+    query = query + ") Order by date";
+   
+    console.log(query);
+    dbSelect(query, [])
+    .then((data) =>{
+        data.forEach((item) => item["date"] = item.date_time.substring(0, 10)); 
+        data.forEach((item) => item["time"] = item.date_time.substring(11)); 
+        data.forEach((item) => delete item["date_time"]); 
+        console.log(data);
+        res.status(200).type('json').send(data);
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(200).type('html').send('Error! Try typing in incidents?code=110&grid=5');
+    })
 });
 
 // PUT request handler for new crime incident
