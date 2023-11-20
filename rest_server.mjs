@@ -63,10 +63,10 @@ app.get('/codes', (req, res) => {
     let query = "SELECT * FROM Codes";
     let input = " WHERE code ="; // WHERE code = value to get the information for the code
 
-    for([key,value] of Object.entries(req.query)){
-        if(key == "code") {
+    for(const [key,value] of Object.entries(req.query)){
+        if(key === "code") {
             let values = value.split(',');
-            for(i=0; i<values.length; i++){
+            for(let i=0; i<values.length; i++){
                 query = query + input + values[i];
                 input = " OR code = ";
             }
@@ -75,7 +75,7 @@ app.get('/codes', (req, res) => {
 
     query = query + " Order by code";
 
-    databaseSelect(query, [])
+    dbSelect(query, [])
     .then((data) =>{
         console.log(data);
         res.status(200).type('json').send(data);
@@ -92,10 +92,10 @@ app.get('/neighborhoods', (req, res) => {
     let query = 'SELECT * FROM Neighborhoods'; 
     let input = " WHERE neighborhood_number = "; //WHERE code = value to get information fpr the code
 
-    for([key,value] of Object.entries(req.query)){
+    for(const [key,value] of Object.entries(req.query)){
         if(key == "neighborhood_number"){
             let values = value.split(",");
-            for(i=0; i<values.length; i++){
+            for(let i=0; i<values.length; i++){
                 query = query + input + values[i];
                 input = " OR neighborhood_number = ";
             }
@@ -104,7 +104,7 @@ app.get('/neighborhoods', (req, res) => {
    
     query = query + " Order by neighborhood_number ASC";
 
-    databaseSelect(query, [])
+    dbSelect(query, [])
     .then((data) =>{
         console.log(data);
         res.status(200).type('json').send(data);
