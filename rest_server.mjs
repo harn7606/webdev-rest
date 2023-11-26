@@ -59,14 +59,14 @@ function dbRun(query, params) {
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
-    
+
     let query = "SELECT * FROM Codes";
     let input = " WHERE code ="; // WHERE code = value to get the information for the code
 
-    for(const [key,value] of Object.entries(req.query)){
-        if(key === "code") {
+    for (const [key, value] of Object.entries(req.query)) {
+        if (key === "code") {
             let values = value.split(',');
-            for(let i=0; i<values.length; i++){
+            for (let i = 0; i < values.length; i++) {
                 query = query + input + values[i];
                 input = " OR code = ";
             }
@@ -76,48 +76,48 @@ app.get('/codes', (req, res) => {
     query = query + " Order by code";
 
     dbSelect(query, [])
-    .then((data) =>{
-        console.log(data);
-        res.status(200).type('json').send(data);
-    })
-    .catch((err) => {
-        res.status(200).type('html').send('Error! Invalid code'); // add what they should enter as code
-    })
+        .then((data) => {
+            console.log(data);
+            res.status(200).type('json').send(data);
+        })
+        .catch((err) => {
+            res.status(200).type('html').send('Error! Invalid code'); // add what they should enter as code
+        })
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
-    
-    let query = 'SELECT * FROM Neighborhoods'; 
+
+    let query = 'SELECT * FROM Neighborhoods';
     let input = " WHERE neighborhood_number = "; //WHERE code = value to get information fpr the code
 
-    for(const [key,value] of Object.entries(req.query)){
-        if(key === "neighborhood_number"){
+    for (const [key, value] of Object.entries(req.query)) {
+        if (key === "neighborhood_number") {
             let values = value.split(",");
-            for(let i=0; i<values.length; i++){
+            for (let i = 0; i < values.length; i++) {
                 query = query + input + values[i];
                 input = " OR neighborhood_number = ";
             }
         }
     }
-   
+
     query = query + " Order by neighborhood_number ASC";
 
     dbSelect(query, [])
-    .then((data) =>{
-        console.log(data);
-        res.status(200).type('json').send(data);
-    })
-    .catch((err) => {
-        res.status(200).type('txt').send('Error! Invalid neighborhood number, try neighborhoods?neighborhood_number=1');
-    })
+        .then((data) => {
+            console.log(data);
+            res.status(200).type('json').send(data);
+        })
+        .catch((err) => {
+            res.status(200).type('txt').send('Error! Invalid neighborhood number, try neighborhoods?neighborhood_number=1');
+        })
 });
 
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
-    
+
     let query = 'SELECT * FROM Incidents';
     let input = " WHERE (";
 
@@ -205,33 +205,49 @@ app.get('/incidents', (req, res) => {
     //query = query + " LIMIT " + limit;
     //Sort by date 
     query = query + ") Order by date";
-   
+
     console.log(query);
     dbSelect(query, [])
-    .then((data) =>{
-        data.forEach((item) => item["date"] = item.date_time.substring(0, 10)); 
-        data.forEach((item) => item["time"] = item.date_time.substring(11)); 
-        data.forEach((item) => delete item["date_time"]); 
-        console.log(data);
-        res.status(200).type('json').send(data);
-    })
-    .catch((err) => {
-        console.error(err);
-        res.status(200).type('html').send('Error! Try typing in incidents?code=110&grid=5');
-    })
+        .then((data) => {
+            data.forEach((item) => item["date"] = item.date_time.substring(0, 10));
+            data.forEach((item) => item["time"] = item.date_time.substring(11));
+            data.forEach((item) => delete item["date_time"]);
+            console.log(data);
+            res.status(200).type('json').send(data);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(200).type('html').send('Error! Try typing in incidents?code=110&grid=5');
+        })
 });
 
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
-    
+    let data = req.body;
+    db.get('SELECT case_number From Incidents WHERE case_number = ?', [data.case_number], (err, existingData) => {
+
+        if (err) {
+            res.status(500).json({ Error: "Select query problem, unable to check if Case Number is valid." })
+        } else if (existingData) {
+            res.status(400).json({ Error: "Case Number is already on file" })
+        } else
+            db.run("INSERT INTO incidents (case_number, date, time, code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?, ?", [data.case_number, data.date, data.time, data.code, data.incident, data.police_grid, data.neighborhood_number, data.block], (err) => {
+                if (err) {
+                    res.status(500).json({ Error: "Insert was unsuccessful, please try again" });
+                } else {
+                    res.status(201).json({ Response: "Success" });
+                }
+            })
+    })
+
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
     console.log(req.body); // uploaded data
-    
+
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
 
