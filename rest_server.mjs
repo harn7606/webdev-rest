@@ -194,17 +194,18 @@ app.get('/incidents', (req, res) => {
             }
             input = ") AND (";
         } else if (key === 'start_date') {
-            query = query + input + "date(date_time) >= '" + value + "'";
+            query = query + input + "(date_time) >= '" + value + "'";
             input = ") AND (";
         } else if (key === 'end_date') {
-            query = query + input + "date(date_time) <= '" + value + "'";
+            query = query + input + "(date_time) <= '" + value + "'";
             input = ") AND (";
         }
     }
     // Set  limit
-    //query = query + " LIMIT " + limit;
-    //Sort by date 
-    query = query + ") Order by date";
+    query = query + " LIMIT " + limit;
+
+    query = query + ")";
+    // Need to order by date
 
     console.log(query);
     dbSelect(query, [])
@@ -217,6 +218,7 @@ app.get('/incidents', (req, res) => {
         })
         .catch((err) => {
             console.error(err);
+            console.log("Error is on line number: " + err.lineNumber);
             res.status(200).type('html').send('Error! Try typing in incidents?code=110&grid=5');
         })
 });
