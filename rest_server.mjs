@@ -202,7 +202,7 @@ app.get('/incidents', (req, res) => {
         }
     }
     // Set  limit
-    query = query + " LIMIT " + limit;
+    //query = query + " LIMIT " + limit;
 
     query = query + ")";
     // Need to order by date
