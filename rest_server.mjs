@@ -116,13 +116,13 @@ app.get('/neighborhoods', (req, res) => {
 
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
+    console.log(req.query); 
 
     let query = 'SELECT * FROM Incidents';
     let input = " WHERE (";
 
     //limit
-    let limit = 100;
+    let limit = 1000;
 
 
     for (const [key, value] of Object.entries(req.query)) {
@@ -140,12 +140,13 @@ app.get('/incidents', (req, res) => {
             query = query + input + "(date_time) <= '" + value + "'";
             input = ") AND (";
         }
+        query = query + ")";
     }
     // Set  limit
     //query = query + " LIMIT " + limit;
 
-    query = query + ")";
-    // Need to order by date
+   
+    
 
     console.log(query);
     dbSelect(query, [])
@@ -159,7 +160,7 @@ app.get('/incidents', (req, res) => {
         .catch((err) => {
             console.error(err);
             console.log("Error is on line number: " + err.lineNumber);
-            res.status(200).type('html').send('Error! Try typing in incidents?code=110&grid=5');
+            res.status(200).type('html').send('Error! Try typing in incidents?desiredparameter=desirednumber');
         })
 });
 
