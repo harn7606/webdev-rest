@@ -123,67 +123,7 @@ app.get('/incidents', (req, res) => {
 
     //limit
     let limit = 100;
-    /** 
-    for(const [key, value] of Object.entries(req.query)){
-        if(key === 'case_number'){
-            let values = value.split(",");
-            for(let i=0; i<values.length; i++){
-                query = query + input + "case_number = " + values[i];
-                input = " OR ";
-            }
-            input = ") AND ("
-        }
-        else if(key === 'start_date'){
-            query = query + input + "date(date_time) >= " + "'" +  value + "'";
-            input = ") AND (";
-        }
-        else if(key === 'end_date'){
-            query = query + input + "date(date_time) <= "  + "'" +  value + "'";
-            input = ") AND ("
-        }
-        else if(key === "code"){
-            let values = value.split(",");
-            for(let i=0; i<values.length; i++){
-                query = query + input + "code = " + values[i];
-                input = " OR ";
-            }
-            input = ") AND ("
-        }
-        else if(key === "incident"){
-            let values = value.split(",");
-            for(let i=0; i<values.length; i++){
-                query = query + input + "incident = " + values[i];
-                input = " OR ";
-            }
-            input = ") AND ("
-        }
-        else if(key === 'grid'){
-            let values = value.split(",");
-            for(let i=0; i<values.length; i++){
-                query = query + input + "police_grid = " + values[i];
-                input = " OR ";
-            }
-            input = ") AND ("
-        }
 
-        else if(key === "block"){
-            let values = value.split(",");
-            for(let i=0; i<values.length; i++){
-                query = query + input + "block = " + values[i];
-                input = " OR ";
-            }
-            input = ") AND ("
-        }
-        else if(key === "neighborhood_number"){
-            let values = value.split(",");
-            for(let i=0; i<values.length; i++){
-                query = query + input + "neighborhood_number = " + values[i];
-                input = " OR ";
-            }
-            input = ") AND ("
-        }
-    }
-    */
 
     for (const [key, value] of Object.entries(req.query)) {
         if (key === 'case_number' || key === 'code' || key === 'incident' || key === 'police_grid' || key === 'neighborhood_number' || key === 'block') {
@@ -226,24 +166,26 @@ app.get('/incidents', (req, res) => {
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
-    let data = req.body;
-    db.get('SELECT case_number From Incidents WHERE case_number = ?', [data.case_number], (err, existingData) => {
 
-        if (err) {
-            res.status(500).json({ Error: "Select query problem, unable to check if Case Number is valid." })
-        } else if (existingData) {
-            res.status(400).json({ Error: "Case Number is already on file" })
-        } else
-            db.run("INSERT INTO incidents (case_number, date, time, code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?, ?", [data.case_number, data.date, data.time, data.code, data.incident, data.police_grid, data.neighborhood_number, data.block], (err) => {
-                if (err) {
-                    res.status(500).json({ Error: "Insert was unsuccessful, please try again" });
-                } else {
-                    res.status(201).json({ Response: "Success" });
-                }
-            })
-    })
+    let query = "INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    let input = [req.body.case_number, req.body.date_time, req.body.code, req.body.incident, req.body.police_grid, req.body.neighborhood_number, req.body.block];
 
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
+    dbSelect('SELECT * FROM Incidents WHERE case_number = ?', req.body.case_number)
+        .then((rows) => {
+            console.log("hello");
+            console.log(rows);
+            if (rows.length !== 0) {
+                res.status(500).type('txt').send('Incident Case Number already Exists');
+                return;
+            }
+
+            dbRun(query, input);
+            res.status(200).type('txt').send("Entry added to database");
+
+        })
+        .catch((err) => {
+            res.status(500).type('txt').send('Something went wrong. Try Again!');
+        })
 });
 
 // DELETE request handler for new crime incident
