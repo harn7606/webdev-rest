@@ -58,10 +58,10 @@ function dbRun(query, params) {
  ********************************************************************/
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
+    console.log(req.query); 
 
     let query = "SELECT * FROM Codes";
-    let input = " WHERE code ="; // WHERE code = value to get the information for the code
+    let input = " WHERE code ="; 
 
     for (const [key, value] of Object.entries(req.query)) {
         if (key === "code") {
@@ -87,10 +87,10 @@ app.get('/codes', (req, res) => {
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
+    console.log(req.query); 
 
     let query = 'SELECT * FROM Neighborhoods';
-    let input = " WHERE neighborhood_number = "; //WHERE code = value to get information fpr the code
+    let input = " WHERE neighborhood_number = "; 
 
     for (const [key, value] of Object.entries(req.query)) {
         if (key === "id") {
@@ -204,7 +204,7 @@ app.put('/new-incident', (req, res) => {
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
-    console.log(req.body); // uploaded data
+    console.log(req.body); 
 
     let query = "DELETE FROM Incidents WHERE case_number = ?";
     let input = [req.body.case_number];
