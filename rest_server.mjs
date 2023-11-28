@@ -171,7 +171,7 @@ app.get('/incidents', (req, res) => {
         .catch((err) => {
             console.error(err);
             console.log("Error is on line number: " + err.lineNumber);
-            res.status(500).type('html').send('Error! Try typing in incidents?desiredparameter=desirednumber');
+            res.status(500).type('html').send('Error! Try typing in incidents?desiredparameter=desirednumber. If looking for grid, desiredparameter = police_grid. If looking for neighborhood, desiredparameter = neighborhood_number');
         })
 });
 
