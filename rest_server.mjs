@@ -81,19 +81,19 @@ app.get('/codes', (req, res) => {
             res.status(200).type('json').send(data);
         })
         .catch((err) => {
-            res.status(200).type('html').send('Error! Invalid code'); // add what they should enter as code
+            res.status(200).type('html').send('Error! Invalid code, try codes?code=110,700'); 
         })
 });
 
 // GET request handler for neighborhoods
-app.get('/neighborhoods', (req, res) => {
+app.get('/neighborhood', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     let query = 'SELECT * FROM Neighborhoods';
     let input = " WHERE neighborhood_number = "; //WHERE code = value to get information fpr the code
 
     for (const [key, value] of Object.entries(req.query)) {
-        if (key === "neighborhood_number") {
+        if (key === "id") {
             let values = value.split(",");
             for (let i = 0; i < values.length; i++) {
                 query = query + input + values[i];
@@ -110,7 +110,7 @@ app.get('/neighborhoods', (req, res) => {
             res.status(200).type('json').send(data);
         })
         .catch((err) => {
-            res.status(200).type('txt').send('Error! Invalid neighborhood number, try neighborhoods?neighborhood_number=1');
+            res.status(200).type('txt').send('Error! Invalid ID number, try neighborhoods?id=11,14');
         })
 });
 
