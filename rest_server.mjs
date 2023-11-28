@@ -190,7 +190,24 @@ app.put('/new-incident', (req, res) => {
 app.delete('/remove-incident', (req, res) => {
     console.log(req.body); // uploaded data
 
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
+    let query = "DELETE FROM Incidents WHERE case_number = ?";
+    let input = [req.body.case_number];
+
+    dbSelect('SELECT * FROM Incidents WHERE case_number = ?', req.body.case_number)
+        .then((rows) => {
+            if (rows.length == 0) {
+                res.status(500).type('txt').send('There exists no case with that number');
+                return;
+            }
+
+            dbRun(query, input)
+            res.status(200).type('txt').send('Incident was deleted')
+        })
+        .catch((err) => {
+            res.status(500).type('txt').send("Something went wrong. Try Again!");
+        });
+
+
 });
 
 /********************************************************************
