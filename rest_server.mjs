@@ -165,16 +165,14 @@ app.get('/incidents', (req, res) => {
 
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
-    console.log(req.body); // uploaded data
 
     let query = "INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?)";
     let input = [req.body.case_number, req.body.date_time, req.body.code, req.body.incident, req.body.police_grid, req.body.neighborhood_number, req.body.block];
 
     dbSelect('SELECT * FROM Incidents WHERE case_number = ?', req.body.case_number)
         .then((rows) => {
-            console.log("hello");
             console.log(rows);
-            if (rows.length !== 0) {
+            if (rows.length > 0) {
                 res.status(500).type('txt').send('Incident Case Number already Exists');
                 return;
             }
