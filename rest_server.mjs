@@ -86,7 +86,7 @@ app.get('/codes', (req, res) => {
 });
 
 // GET request handler for neighborhoods
-app.get('/neighborhood', (req, res) => {
+app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     let query = 'SELECT * FROM Neighborhoods';
