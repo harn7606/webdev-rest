@@ -122,7 +122,7 @@ app.get('/incidents', (req, res) => {
     let input = " WHERE (";
 
     //limit
-    let limit = 1000;
+    let looplimit = 1000;
 
 
     for (const [key, value] of Object.entries(req.query)) {
@@ -140,10 +140,21 @@ app.get('/incidents', (req, res) => {
             query = query + input + "(date_time) <= '" + value + "'";
             input = ") AND (";
         }
-        query = query + ")";
+        else if(key === 'limit'){
+            looplimit = value;
+            
+            
+        }
+        
+        if (key !== 'limit'){
+            query = query + ")";
+        }
     }
     // Set  limit
-    //query = query + " LIMIT " + limit;
+    
+    query = query + " LIMIT " + looplimit;
+    
+
 
    
     
