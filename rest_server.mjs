@@ -187,7 +187,7 @@ app.put('/new-incident', (req, res) => {
             console.log(rows);
             if (rows.length > 0) {
                 res.status(500).type('txt').send('Incident Case Number already exists');
-                console.log("Incident Case Number already exists);
+                console.log("Incident Case Number already exists");
                 return;
             }
 
@@ -213,7 +213,7 @@ app.delete('/remove-incident', (req, res) => {
         .then((rows) => {
             if (rows.length == 0) {
                 res.status(500).type('txt').send('There exists no case with that number');
-                console.log("There exists no case with that number")'
+                console.log("There exists no case with that number")
                 return;
             }
 
