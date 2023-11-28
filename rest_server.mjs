@@ -81,7 +81,7 @@ app.get('/codes', (req, res) => {
             res.status(200).type('json').send(data);
         })
         .catch((err) => {
-            res.status(200).type('html').send('Error! Invalid code, try codes?code=110,700');
+            res.status(400).type('html').send('Error! Invalid code, try codes?code=110,700');
         })
 });
 
@@ -110,7 +110,7 @@ app.get('/neighborhoods', (req, res) => {
             res.status(200).type('json').send(data);
         })
         .catch((err) => {
-            res.status(200).type('txt').send('Error! Invalid ID number, try neighborhoods?id=11,14');
+            res.status(400).type('txt').send('Error! Invalid ID number, try neighborhoods?id=11,14');
         })
 });
 
@@ -171,7 +171,7 @@ app.get('/incidents', (req, res) => {
         .catch((err) => {
             console.error(err);
             console.log("Error is on line number: " + err.lineNumber);
-            res.status(200).type('html').send('Error! Try typing in incidents?desiredparameter=desirednumber');
+            res.status(500).type('html').send('Error! Try typing in incidents?desiredparameter=desirednumber');
         })
 });
 
@@ -186,16 +186,19 @@ app.put('/new-incident', (req, res) => {
         .then((rows) => {
             console.log(rows);
             if (rows.length > 0) {
-                res.status(500).type('txt').send('Incident Case Number already Exists');
+                res.status(500).type('txt').send('Incident Case Number already exists');
+                console.log("Incident Case Number already exists);
                 return;
             }
 
             dbRun(query, input);
             res.status(200).type('txt').send("Entry added to database");
+            console.log("Entry added to database");
 
         })
         .catch((err) => {
-            res.status(500).type('txt').send('Something went wrong. Try Again!');
+            res.status(400).type('txt').send('Something went wrong. Try again!');
+            console.log("Something went wrong. Try again!");
         })
 });
 
@@ -210,14 +213,17 @@ app.delete('/remove-incident', (req, res) => {
         .then((rows) => {
             if (rows.length == 0) {
                 res.status(500).type('txt').send('There exists no case with that number');
+                console.log("There exists no case with that number")'
                 return;
             }
 
             dbRun(query, input)
             res.status(200).type('txt').send('Incident was deleted')
+            console.log("Incident was deleted");
         })
         .catch((err) => {
-            res.status(500).type('txt').send("Something went wrong. Try Again!");
+            res.status(400).type('txt').send("Something went wrong. Try Again!");
+            console.log("Something went wrong. Try Again!");
         });
 
 
