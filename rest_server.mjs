@@ -81,7 +81,7 @@ app.get('/codes', (req, res) => {
             res.status(200).type('json').send(data);
         })
         .catch((err) => {
-            res.status(200).type('html').send('Error! Invalid code, try codes?code=110,700'); 
+            res.status(200).type('html').send('Error! Invalid code, try codes?code=110,700');
         })
 });
 
@@ -116,7 +116,7 @@ app.get('/neighborhoods', (req, res) => {
 
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
-    console.log(req.query); 
+    console.log(req.query);
 
     let query = 'SELECT * FROM Incidents';
     let input = " WHERE (";
@@ -140,24 +140,24 @@ app.get('/incidents', (req, res) => {
             query = query + input + "(date_time) <= '" + value + "'";
             input = ") AND (";
         }
-        else if(key === 'limit'){
+        else if (key === 'limit') {
             looplimit = value;
-            
-            
+
+
         }
-        
-        if (key !== 'limit'){
+
+        if (key !== 'limit') {
             query = query + ")";
         }
     }
     // Set  limit
-    
+
     query = query + " LIMIT " + looplimit;
-    
 
 
-   
-    
+
+
+
 
     console.log(query);
     dbSelect(query, [])
@@ -178,8 +178,9 @@ app.get('/incidents', (req, res) => {
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
 
+    let dateTime = req.body.date + '-' + req.body.time;
     let query = "INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    let input = [req.body.case_number, req.body.date_time, req.body.code, req.body.incident, req.body.police_grid, req.body.neighborhood_number, req.body.block];
+    let input = [req.body.case_number, dateTime, req.body.code, req.body.incident, req.body.police_grid, req.body.neighborhood_number, req.body.block];
 
     dbSelect('SELECT * FROM Incidents WHERE case_number = ?', req.body.case_number)
         .then((rows) => {
