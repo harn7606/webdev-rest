@@ -58,10 +58,10 @@ function dbRun(query, params) {
  ********************************************************************/
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
+    console.log(req.query); 
 
     let query = "SELECT * FROM Codes";
-    let input = " WHERE code ="; // WHERE code = value to get the information for the code
+    let input = " WHERE code ="; 
 
     for (const [key, value] of Object.entries(req.query)) {
         if (key === "code") {
@@ -81,16 +81,16 @@ app.get('/codes', (req, res) => {
             res.status(200).type('json').send(data);
         })
         .catch((err) => {
-            res.status(200).type('html').send('Error! Invalid code, try codes?code=110,700');
+            res.status(400).type('html').send('Error! Invalid code, try codes?code=110,700');
         })
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
+    console.log(req.query); 
 
     let query = 'SELECT * FROM Neighborhoods';
-    let input = " WHERE neighborhood_number = "; //WHERE code = value to get information fpr the code
+    let input = " WHERE neighborhood_number = "; 
 
     for (const [key, value] of Object.entries(req.query)) {
         if (key === "id") {
@@ -110,7 +110,7 @@ app.get('/neighborhoods', (req, res) => {
             res.status(200).type('json').send(data);
         })
         .catch((err) => {
-            res.status(200).type('txt').send('Error! Invalid ID number, try neighborhoods?id=11,14');
+            res.status(400).type('txt').send('Error! Invalid ID number, try neighborhoods?id=11,14');
         })
 });
 
@@ -171,7 +171,7 @@ app.get('/incidents', (req, res) => {
         .catch((err) => {
             console.error(err);
             console.log("Error is on line number: " + err.lineNumber);
-            res.status(200).type('html').send('Error! Try typing in incidents?desiredparameter=desirednumber');
+            res.status(500).type('html').send('Error! Try typing in incidents?desiredparameter=desirednumber. If looking for grid, desiredparameter = police_grid. If looking for neighborhood, desiredparameter = neighborhood_number');
         })
 });
 
@@ -186,22 +186,25 @@ app.put('/new-incident', (req, res) => {
         .then((rows) => {
             console.log(rows);
             if (rows.length > 0) {
-                res.status(500).type('txt').send('Incident Case Number already Exists');
+                res.status(500).type('txt').send('Incident Case Number already exists');
+                console.log("Incident Case Number already exists");
                 return;
             }
 
             dbRun(query, input);
             res.status(200).type('txt').send("Entry added to database");
+            console.log("Entry added to database");
 
         })
         .catch((err) => {
-            res.status(500).type('txt').send('Something went wrong. Try Again!');
+            res.status(400).type('txt').send('Something went wrong. Try again!');
+            console.log("Something went wrong. Try again!");
         })
 });
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
-    console.log(req.body); // uploaded data
+    console.log(req.body); 
 
     let query = "DELETE FROM Incidents WHERE case_number = ?";
     let input = [req.body.case_number];
@@ -210,14 +213,17 @@ app.delete('/remove-incident', (req, res) => {
         .then((rows) => {
             if (rows.length == 0) {
                 res.status(500).type('txt').send('There exists no case with that number');
+                console.log("There exists no case with that number")
                 return;
             }
 
             dbRun(query, input)
             res.status(200).type('txt').send('Incident was deleted')
+            console.log("Incident was deleted");
         })
         .catch((err) => {
-            res.status(500).type('txt').send("Something went wrong. Try Again!");
+            res.status(400).type('txt').send("Something went wrong. Try Again!");
+            console.log("Something went wrong. Try Again!");
         });
 
 
