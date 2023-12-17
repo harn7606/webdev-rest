@@ -7,7 +7,7 @@ import { default as sqlite3 } from 'sqlite3';
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
 
-const port = 8000;
+const port = 8001;
 
 let app = express();
 app.use(express.json());
