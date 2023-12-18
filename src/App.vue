@@ -87,6 +87,36 @@ function closeDialog() {
         dialog_err.value = true;
     }
 }
+
+function findLocation() {
+
+    let inputLocation = document.getElementById('inputLocation');
+        inputLocation = inputLocation.value;
+
+    let qry = 'https://nominatim.openstreetmap.org/search?q=' + inputLocation + '&format=json&&limit=1';
+
+    fetch(qry)
+    .then((res) => {
+        return res.json();
+    })
+    .then((data) => {
+        if(data.length > 0) {
+            let latitude = data[0].lat;
+            let longitude = data[0].lon;
+            map.leaflet.setView([latitude, longitude], 14);
+        } else {
+            console.log("The location could not be found");
+            alert("The location could not be found")
+        }
+    })
+    .catch((err) => {
+        console.log("There was an error. Please try again.");
+        alert("There was an error. Please try again.");
+    });
+
+}
+
+
 </script>
 
 <template>
@@ -106,10 +136,9 @@ function closeDialog() {
     <div class="grid-container">
         <div class="grid-x grid-padding-x">
             <div id="location" class="cell auto">
-                <label>Enter Location:</label>
-                <input type="text" id="location" name="location">
+                <input id="inputLocation" class="dialog-input" type="text" v-model="location" placeholder="Enter a location"/>
             </div>
-            <button type="button" onclick="alert('You pressed the button!')">GO</button>
+            <button type="button" @click="findLocation">GO</button>
         </div>
 
     </div>
