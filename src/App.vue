@@ -103,6 +103,16 @@ function closeDialog() {
             <div id="leafletmap" class="cell auto"></div>
         </div>
     </div>
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x">
+            <div id="location" class="cell auto">
+                <label>Enter Location:</label>
+                <input type="text" id="location" name="location">
+            </div>
+            <button type="button" onclick="alert('You pressed the button!')">GO</button>
+        </div>
+
+    </div>
 </template>
 
 <style>
