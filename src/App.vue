@@ -37,6 +37,55 @@ let map = reactive(
         ]
     }
 );
+let form = ref(null);
+
+function submitForm(){
+    console.log("test");
+    
+    let form =  {
+        case_number: form.elements.case_number.value,
+        date: form.elements.date.value,
+        time: form.elements.time.value,
+        code: form.elements.code.value,
+        incident: form.elements.incident.value,
+        police_grid: form.elements.police_grid.value,
+        neighborhood_number: form.elements.neighborhood_number.value,
+        block: form.elements.block.value
+    };
+    if(formData.case_number.trim() == '' || formData.date.trim() == '' || formData.time.trim() == '' || formData.code.trim() == '' ||
+        formData.incident.trim() == '' || formData.police_grid.trim() == '' || formData.neighborhood_number.trim() == '' || formData.block.trim() == ''){
+        alert("Please fill out all fields in the form.")
+    } 
+    else {
+        alert("duck");
+        fetch("http://localhost:8001/new-incident", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+        .then((response) => {
+            if (response.ok) {
+            
+            
+            console.log("Success");
+            } else {
+            // Handle non-successful response (e.g., server error)
+            alert("Error submitting new incident. Please try again.");
+            console.error("Unsuccessful response:", response);
+            }
+        })
+        .catch((error) => {
+            // Handle network errors or other issues
+            alert("An error occurred while submitting the form. Please try again.");
+            console.error("Error:", error);
+        });
+        //reset the form
+        form.reset();
+        alert("duck");
+    }
+}
 
 // Vue callback for once <template> HTML has been added to web page
 onMounted(() => {
@@ -133,6 +182,7 @@ function findLocation() {
             <div id="leafletmap" class="cell auto"></div>
         </div>
     </div>
+
     <div class="grid-container">
         <div class="grid-x grid-padding-x">
             <div id="location" class="cell auto">
@@ -140,7 +190,31 @@ function findLocation() {
             </div>
             <button type="button" @click="findLocation">GO</button>
         </div>
+    </div>
 
+    <div class="grid-container">
+            <div class="grid-x grid-padding-x">
+                <h1 class="cell auto center" style="font-family:arial">New Incident Report Form</h1>
+            </div>
+                <form ref = "form" id = "form" @submit.prevent="submitForm">
+                    <label for="case_number">Case Number:</label><br>
+                    <input type="text" placeholder="Ex: 123456" id="case_number" name="case_number" required>
+                    <label for="date">Date:</label><br>
+                    <input type="text" placeholder="Ex: 2019-04-26" id="date" name="date" required>
+                    <label for="time">Time:</label><br>
+                    <input type="text" placeholder="Ex: 19:15:00" id="time" name="time" required>
+                    <label for ="code">Code:</label><br>
+                    <input type = "text" placeholder="Ex: 600" id="code" name="code" required>
+                    <label for="incident">Incident:</label><br>
+                    <input type="text" placeholder="Ex: theft" id="incident" name="incident" required>
+                    <label for="police_grid">Police Grid:</label><br>
+                    <input type="text" placeholder="Ex: 49" id="police_grid" name="police_grid" required>
+                    <label for="neighborhood_number">Neighborhood Number:</label><br>
+                    <input type="text" placeholder="Ex: 1" id="neighborhood_number" name="neighborhood_number" required>
+                    <label for="block">Block:</label><br>
+                    <input type="text" placeholder="Ex: 212OLDHUDSONRD" id="block" name="block" required>
+                    <button class="button" type="button" @click="submitForm">Submit</button>
+                </form>
     </div>
 </template>
 
