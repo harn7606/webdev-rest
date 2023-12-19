@@ -113,6 +113,7 @@ onMounted(() => {
     .catch((error) => {
         console.log('Error:', error);
     });
+
 });
 
 
@@ -140,9 +141,9 @@ function closeDialog() {
 function findLocation() {
 
     let inputLocation = document.getElementById('inputLocation');
-        inputLocation = inputLocation.value;
+    let inputLocationUpdate = inputLocation.value;
 
-    let qry = 'https://nominatim.openstreetmap.org/search?q=' + inputLocation + '&format=json&&limit=1';
+    let qry = 'https://nominatim.openstreetmap.org/search?q=' + inputLocationUpdate + '&format=json&&limit=1';
 
     fetch(qry)
     .then((res) => {
@@ -153,13 +154,14 @@ function findLocation() {
             let latitude = data[0].lat;
             let longitude = data[0].lon;
             map.leaflet.setView([latitude, longitude], 14);
+            inputLocation.placeholder = inputLocationUpdate;
         } else {
             console.log("The location could not be found");
             alert("The location could not be found")
         }
     })
     .catch((err) => {
-        console.log("There was an error. Please try again.");
+        console.log(err);
         alert("There was an error. Please try again.");
     });
 

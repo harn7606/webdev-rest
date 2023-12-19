@@ -152,11 +152,7 @@ app.get('/incidents', (req, res) => {
     }
     // Set  limit
 
-    query = query + " LIMIT " + looplimit;
-
-
-
-
+    query = query + " ORDER BY date_time DESC LIMIT " + looplimit;
 
 
     console.log(query);
