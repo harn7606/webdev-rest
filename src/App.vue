@@ -39,12 +39,12 @@ let map = reactive(
         ]
     }
 );
-let form = ref(null);
+let formData = ref(null);
 
-function submitForm(){
+async function submitForm(){
     console.log("test");
     
-    let form =  {
+    const formData =  {
         case_number: form.elements.case_number.value,
         date: form.elements.date.value,
         time: form.elements.time.value,
@@ -54,6 +54,8 @@ function submitForm(){
         neighborhood_number: form.elements.neighborhood_number.value,
         block: form.elements.block.value
     };
+    
+   console.log(formData.case_number);
     if(formData.case_number.trim() == '' || formData.date.trim() == '' || formData.time.trim() == '' || formData.code.trim() == '' ||
         formData.incident.trim() == '' || formData.police_grid.trim() == '' || formData.neighborhood_number.trim() == '' || formData.block.trim() == ''){
         alert("Please fill out all fields in the form.")
@@ -88,6 +90,33 @@ function submitForm(){
         alert("duck");
     }
 }
+
+async function deleteForm() {
+    const value = document.getElementById('delete').value;
+    console.log(value);
+    fetch(`http://localhost:8001/remove-incident?case_number=${value}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log("IT DELETED!");
+            location.reload();
+        } else {
+            console.log("Did not delete");
+            // Handle non-successful response (e.g., server error)
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        console.log("Did not delete");
+        // Handle network errors or other issues
+    });
+}
+
+
 
 // Vue callback for once <template> HTML has been added to web page
 onMounted(() => {
@@ -190,6 +219,8 @@ function findLocation() {
 </script>
 
 <template>
+    
+    <h1 style="text-align: center;">St. Paul Crime Map</h1>
     <dialog id="rest-dialog" open>
         <h1 class="dialog-header">St. Paul Crime REST API</h1>
         <label class="dialog-label">URL: </label>
@@ -219,24 +250,36 @@ function findLocation() {
             </div>
                 <form ref = "form" id = "form" @submit.prevent="submitForm">
                     <label for="case_number">Case Number:</label><br>
-                    <input type="text" placeholder="Ex: 123456" id="case_number" name="case_number" required>
+                    <input type="text" placeholder="Ex: 12345678" id="case_number" name="case_number" required>
                     <label for="date">Date:</label><br>
-                    <input type="text" placeholder="Ex: 2019-04-26" id="date" name="date" required>
+                    <input type="text" placeholder="Ex: 2022-07-15" id="date" name="date" required>
                     <label for="time">Time:</label><br>
-                    <input type="text" placeholder="Ex: 19:15:00" id="time" name="time" required>
+                    <input type="text" placeholder="Ex: 13:10:00" id="time" name="time" required>
                     <label for ="code">Code:</label><br>
-                    <input type = "text" placeholder="Ex: 600" id="code" name="code" required>
+                    <input type = "text" placeholder="Ex: 530" id="code" name="code" required>
                     <label for="incident">Incident:</label><br>
-                    <input type="text" placeholder="Ex: theft" id="incident" name="incident" required>
+                    <input type="text" placeholder="Ex: Burglary" id="incident" name="incident" required>
                     <label for="police_grid">Police Grid:</label><br>
-                    <input type="text" placeholder="Ex: 49" id="police_grid" name="police_grid" required>
+                    <input type="text" placeholder="Ex: 53" id="police_grid" name="police_grid" required>
                     <label for="neighborhood_number">Neighborhood Number:</label><br>
-                    <input type="text" placeholder="Ex: 1" id="neighborhood_number" name="neighborhood_number" required>
+                    <input type="text" placeholder="Ex: 4" id="neighborhood_number" name="neighborhood_number" required>
                     <label for="block">Block:</label><br>
-                    <input type="text" placeholder="Ex: 212OLDHUDSONRD" id="block" name="block" required>
+                    <input type="text" placeholder="Ex: HUDSON RD AND FRANK" id="block" name="block" required>
                     <button class="button" type="button" @click="submitForm">Submit</button>
                 </form>
     </div>
+
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x">
+            <h1 class="cell auto center" style="font-family:arial">Delete Incident Form</h1>
+        </div>
+        <label for="date">Incident Number:</label><br>
+        <form>
+            <input type="text" placeholder="Type here" id="delete" name="delete" required>
+            <button class="button" type="button" @click="deleteForm">Submit</button>
+        </form>
+    </div>
+
 
     <table class="unstriped">
         <thead>
