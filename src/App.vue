@@ -1,8 +1,10 @@
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted} from 'vue'
 
-let crime_url = ref('');
+
+let crime_url = ref('http://localhost:8001');
 let dialog_err = ref(false);
+let crimes = ref([]);
 let map = reactive(
     {
         leaflet: null,
@@ -119,9 +121,26 @@ onMounted(() => {
 
 // FUNCTIONS
 // Function called once user has entered REST API URL
-function initializeCrimes() {
-    // TODO: get code and neighborhood data
-    //       get initial 1000 crimes
+async function initializeCrimes() {
+    try {
+        const [incidents, codes, neighborhoods] = await Promise.all([fetch(crime_url.value + '/incidents').then(response => response.json()), 
+        fetch(crime_url.value +'/codes').then(response => response.json()), 
+        fetch(crime_url.value + '/neighborhoods').then(response => response.json())
+        ]);
+
+        crimes.value =incidents.map(incident => ({
+        case_number: incident.case_number,
+        date: incident.date,
+        time: incident.time,
+        code: incident.code,
+        incident: incident.incident,
+        police_grid: incident.police_grid,
+        neighborhood_number: incident.neighborhood_number,
+        block: incident.block
+        }))
+    } catch (error) {
+        console.log('Error Fetching Data:' + error);
+    }
 }
 
 // Function called when user presses 'OK' on dialog box
@@ -218,6 +237,33 @@ function findLocation() {
                     <button class="button" type="button" @click="submitForm">Submit</button>
                 </form>
     </div>
+
+    <table class="unstriped">
+        <thead>
+            <tr>
+                <th>Case Number</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Incident Type</th>
+                <th>Description</th>
+                <th>Police Grid</th>
+                <th>Neighborhood</th>
+                <th>Block</th>
+            </tr>
+        </thead>
+  <tbody>
+        <tr v-for="incident in crimes" :key="incident.case_number">
+            <td>{{ incident.case_number }}</td>
+            <td>{{ incident.date }}</td>
+            <td>{{ incident.time }}</td>
+            <td>{{ incident.code }}</td>
+            <td>{{ incident.incident }}</td>
+            <td>{{ incident.police_grid }}</td>
+            <td>{{ incident.neighborhood_number }}</td>
+            <td>{{ incident.block }}</td>
+        </tr>
+    </tbody>
+    </table>
 </template>
 
 <style>
