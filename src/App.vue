@@ -216,6 +216,8 @@ function findLocation() {
 }
 
 
+
+
 </script>
 
 <template>
@@ -300,7 +302,9 @@ function findLocation() {
             <td>{{ incident.date }}</td>
             <td>{{ incident.time }}</td>
             <td>{{ incident.code }}</td>
-            <td>{{ incident.incident }}</td>
+            <td class = "violent" v-if="(((incident.code <= 500) && (incident.code >= 100)) || (incident.code >= 801 && incident.code <= 900) || incident.code === 2619)">{{ incident.incident }}</td>
+            <td class = "property" v-else-if="(((incident.code >= 501) && (incident.code <= 800)) || (incident.code >= 1400 && incident.code <= 1601))">{{ incident.incident }}</td>
+            <td class = "missed-other" v-else>{{ incident.incident }}</td>
             <td>{{ incident.police_grid }}</td>
             <td>{{ incident.neighborhood_number }}</td>
             <td>{{ incident.block }}</td>
@@ -338,4 +342,15 @@ function findLocation() {
     font-size: 1rem;
     color: #D32323;
 }
+.violent {
+    background-color: rgb(214, 170, 10);
+}
+.missed-other {
+    background-color: greenyellow;
+}
+.property {
+    background-color: burlywood;
+}
+
+
 </style>
