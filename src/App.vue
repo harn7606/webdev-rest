@@ -36,7 +36,9 @@ let map = reactive(
             {location: [44.913106, -93.170779], marker: null},
             {location: [44.937705, -93.136997], marker: null},
             {location: [44.949203, -93.093739], marker: null}
-        ]
+        ],
+
+        markers: []
     }
 );
 let formData = ref(null);
@@ -145,6 +147,8 @@ onMounted(() => {
         console.log('Error:', error);
     });
 
+    const neighborhoodLocations = map.neighborhood_markers.map(neigh => neigh.location);
+    addMarkers(neighborhoodLocations);
 });
 
 
@@ -174,6 +178,41 @@ async function initializeCrimes() {
     } catch (error) {
         console.log('Error Fetching Data:' + error);
     }
+}
+
+function addMarkers(locations) {
+    // Remove existing markers from the map
+    map.markers.forEach(marker => marker.remove());
+    map.markers = [];  // Clear the markers array
+
+    // Create a map to store incident counts for each neighborhood
+    const incidentCounts = new Map();
+
+    // Count incidents for each neighborhood
+    crimes.value.forEach(incident => {
+        const neighborhood = incident.neighborhood_number;
+        incidentCounts.set(neighborhood, (incidentCounts.get(neighborhood) || 0) + 1);
+    });
+
+    // Add new markers to the map
+    locations.forEach((location, index) => {
+        const marker = L.marker(location)
+            .addTo(map.leaflet);
+
+        // Get the neighborhood number for this marker
+        const neighborhoodNumber = index + 1;
+
+        // Get incident count for this neighborhood
+        const incidentCount = incidentCounts.get(neighborhoodNumber) || 0;
+
+        // Get neighborhood name
+        const neighborhoodName = crimes.value.find(incident => incident.neighborhood_number === neighborhoodNumber)?.neighborhood_name || 'Unknown';
+
+        // Create a tooltip with neighborhood name and incident count
+        marker.bindTooltip(`Neighborhood ${neighborhoodName}: ${incidentCount} incidents`, { permanent: true, direction: 'top' });
+
+        map.markers.push(marker);
+    });
 }
 
 // Function called when user presses 'OK' on dialog box
