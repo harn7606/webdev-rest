@@ -44,8 +44,6 @@ let map = reactive(
 let formData = ref(null);
 
 async function submitForm(){
-    console.log("test");
-    
     const formData =  {
         case_number: form.elements.case_number.value,
         date: form.elements.date.value,
@@ -63,7 +61,6 @@ async function submitForm(){
         alert("Please fill out all fields in the form.")
     } 
     else {
-        alert("duck");
         fetch("http://localhost:8001/new-incident", {
             method: 'PUT',
             headers: {
@@ -89,33 +86,42 @@ async function submitForm(){
         });
         //reset the form
         form.reset();
-        alert("duck");
     }
 }
 
 async function deleteForm() {
-    const value = document.getElementById('delete').value;
-    console.log(value);
-    fetch(`http://localhost:8001/remove-incident?case_number=${value}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => {
+    try {
+        const value = document.getElementById('delete').value;
+        console.log(value);
+
+        const response = await fetch('http://localhost:8001/remove-incident', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ case_number: value }),
+        });
+
         if (response.ok) {
-            console.log("IT DELETED!");
+            const result = await response.text();
+            console.log(result);
+            console.log("Case Deleted");
             location.reload();
         } else {
-            console.log("Did not delete");
-            // Handle non-successful response (e.g., server error)
+            const errorText = await response.text();
+            console.log(errorText);
+
+            if (response.status === 404) {
+                console.log("Case not found");
+            } else {
+                console.log("Did not delete");
+            }
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.log(error);
-        console.log("Did not delete");
+        console.log("Did not delete - error ");
         // Handle network errors or other issues
-    });
+    }
 }
 
 
