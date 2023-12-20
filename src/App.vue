@@ -157,14 +157,18 @@ async function initializeCrimes() {
         fetch(crime_url.value + '/neighborhoods').then(response => response.json())
         ]);
 
+        const codeMap = new Map(codes.map(code => [code.code, code.incident_type]))
+
+        const neighborhoodMap = new Map(neighborhoods.map(neighborhood => [neighborhood.neighborhood_number, neighborhood.neighborhood_name]))
+
         crimes.value =incidents.map(incident => ({
         case_number: incident.case_number,
         date: incident.date,
         time: incident.time,
-        code: incident.code,
+        code: codeMap.get(incident.code) || 'Unknown',
         incident: incident.incident,
         police_grid: incident.police_grid,
-        neighborhood_number: incident.neighborhood_number,
+        neighborhood_number: neighborhoodMap.get(incident.neighborhood_number) || 'Unknown',
         block: incident.block
         }))
     } catch (error) {
