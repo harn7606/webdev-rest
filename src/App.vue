@@ -156,25 +156,26 @@ onMounted(() => {
 // Function called once user has entered REST API URL
 async function initializeCrimes() {
     try {
-        const [incidents, codes, neighborhoods] = await Promise.all([fetch(crime_url.value + '/incidents').then(response => response.json()), 
-        fetch(crime_url.value +'/codes').then(response => response.json()), 
-        fetch(crime_url.value + '/neighborhoods').then(response => response.json())
+        const [incidents, codes, neighborhoods] = await Promise.all([
+            fetch(crime_url.value + '/incidents').then(response => response.json()),
+            fetch(crime_url.value + '/codes').then(response => response.json()),
+            fetch(crime_url.value + '/neighborhoods').then(response => response.json())
         ]);
 
-        const codeMap = new Map(codes.map(code => [code.code, code.incident_type]))
+        const codeMap = new Map(codes.map(code => [code.code, code.incident_type]));
+        const neighborhoodMap = new Map(neighborhoods.map(neighborhood => [neighborhood.neighborhood_number, neighborhood.neighborhood_name]));
 
-        const neighborhoodMap = new Map(neighborhoods.map(neighborhood => [neighborhood.neighborhood_number, neighborhood.neighborhood_name]))
-
-        crimes.value =incidents.map(incident => ({
-        case_number: incident.case_number,
-        date: incident.date,
-        time: incident.time,
-        code: codeMap.get(incident.code) || 'Unknown',
-        incident: incident.incident,
-        police_grid: incident.police_grid,
-        neighborhood_number: neighborhoodMap.get(incident.neighborhood_number) || 'Unknown',
-        block: incident.block
-        }))
+        crimes.value = incidents.map(incident => ({
+            case_number: incident.case_number,
+            date: incident.date,
+            time: incident.time,
+            code: codeMap.get(incident.code) || 'Unknown',
+            incident: incident.incident,
+            police_grid: incident.police_grid,
+            neighborhood_number: incident.neighborhood_number, // Ensure neighborhood_number is directly set
+            neighborhood_name: neighborhoodMap.get(incident.neighborhood_number) || 'Unknown',
+            block: incident.block
+        }));
     } catch (error) {
         console.log('Error Fetching Data:' + error);
     }
@@ -183,7 +184,7 @@ async function initializeCrimes() {
 function addMarkers(locations) {
     // Remove existing markers from the map
     map.markers.forEach(marker => marker.remove());
-    map.markers = [];  // Clear the markers array
+    map.markers = []; // Clear the markers array
 
     // Create a map to store incident counts for each neighborhood
     const incidentCounts = new Map();
@@ -194,10 +195,11 @@ function addMarkers(locations) {
         incidentCounts.set(neighborhood, (incidentCounts.get(neighborhood) || 0) + 1);
     });
 
+    console.log('Incident Counts:', incidentCounts);
+
     // Add new markers to the map
     locations.forEach((location, index) => {
-        const marker = L.marker(location)
-            .addTo(map.leaflet);
+        const marker = L.marker(location).addTo(map.leaflet);
 
         // Get the neighborhood number for this marker
         const neighborhoodNumber = index + 1;
@@ -267,7 +269,7 @@ function findLocation() {
     <dialog id="rest-dialog" open>
         <h1 class="dialog-header">St. Paul Crime REST API</h1>
         <label class="dialog-label">URL: </label>
-        <input id="dialog-url" class="dialog-input" type="url" v-model="crime_url" placeholder="http://localhost:8000" />
+        <input id="dialog-url" class="dialog-input" type="url" v-model="crime_url" placeholder="http://localhost:8001" />
         <p class="dialog-error" v-if="dialog_err">Error: must enter valid URL</p>
         <br/>
         <button class="button" type="button" @click="closeDialog">OK</button>
@@ -280,10 +282,16 @@ function findLocation() {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x">
+            <h1 class="cell auto center" style="font-family:arial">Search Location</h1>
+        </div>
+    </div>
+
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x">
             <div id="location" class="cell auto">
                 <input id="inputLocation" class="dialog-input" type="text" v-model="location" placeholder="Enter a location"/>
             </div>
-            <button type="button" @click="findLocation">GO</button>
+            <button class="button" type="button" @click="findLocation">GO</button>
         </div>
     </div>
 
@@ -323,8 +331,10 @@ function findLocation() {
         </form>
     </div>
 
-
-    <table class="unstriped">
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x">
+            <h1 class="cell auto center" style="font-family:arial">Incident Information</h1>
+            <table class="unstriped">
         <thead>
             <tr>
                 <th>Case Number</th>
@@ -350,6 +360,10 @@ function findLocation() {
         </tr>
     </tbody>
     </table>
+        </div>
+    </div>
+
+
 </template>
 
 <style>
@@ -380,5 +394,9 @@ function findLocation() {
 .dialog-error {
     font-size: 1rem;
     color: #D32323;
+}
+
+body {
+    background-color: rgb(208, 208, 211);
 }
 </style>
