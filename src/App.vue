@@ -36,14 +36,14 @@ let map = reactive(
             {location: [44.913106, -93.170779], marker: null},
             {location: [44.937705, -93.136997], marker: null},
             {location: [44.949203, -93.093739], marker: null}
-        ]
+        ],
+
+        markers: []
     }
 );
 let formData = ref(null);
 
 async function submitForm(){
-    console.log("test");
-    
     const formData =  {
         case_number: form.elements.case_number.value,
         date: form.elements.date.value,
@@ -61,7 +61,6 @@ async function submitForm(){
         alert("Please fill out all fields in the form.")
     } 
     else {
-        alert("duck");
         fetch("http://localhost:8001/new-incident", {
             method: 'PUT',
             headers: {
@@ -87,33 +86,42 @@ async function submitForm(){
         });
         //reset the form
         form.reset();
-        alert("duck");
     }
 }
 
 async function deleteForm() {
-    const value = document.getElementById('delete').value;
-    console.log(value);
-    fetch(`http://localhost:8001/remove-incident?case_number=${value}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => {
+    try {
+        const value = document.getElementById('delete').value;
+        console.log(value);
+
+        const response = await fetch('http://localhost:8001/remove-incident', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ case_number: value }),
+        });
+
         if (response.ok) {
-            console.log("IT DELETED!");
+            const result = await response.text();
+            console.log(result);
+            console.log("Case Deleted");
             location.reload();
         } else {
-            console.log("Did not delete");
-            // Handle non-successful response (e.g., server error)
+            const errorText = await response.text();
+            console.log(errorText);
+
+            if (response.status === 404) {
+                console.log("Case not found");
+            } else {
+                console.log("Did not delete");
+            }
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.log(error);
-        console.log("Did not delete");
+        console.log("Did not delete - error ");
         // Handle network errors or other issues
-    });
+    }
 }
 
 
@@ -145,6 +153,8 @@ onMounted(() => {
         console.log('Error:', error);
     });
 
+    const neighborhoodLocations = map.neighborhood_markers.map(neigh => neigh.location);
+    addMarkers(neighborhoodLocations);
 });
 
 
@@ -157,19 +167,58 @@ async function initializeCrimes() {
         fetch(crime_url.value + '/neighborhoods').then(response => response.json())
         ]);
 
+        const codeMap = new Map(codes.map(code => [code.code, code.incident_type]))
+
+        const neighborhoodMap = new Map(neighborhoods.map(neighborhood => [neighborhood.neighborhood_number, neighborhood.neighborhood_name]))
+
         crimes.value =incidents.map(incident => ({
         case_number: incident.case_number,
         date: incident.date,
         time: incident.time,
-        code: incident.code,
+        code: codeMap.get(incident.code) || 'Unknown',
         incident: incident.incident,
         police_grid: incident.police_grid,
-        neighborhood_number: incident.neighborhood_number,
+        neighborhood_number: neighborhoodMap.get(incident.neighborhood_number) || 'Unknown',
         block: incident.block
         }))
     } catch (error) {
         console.log('Error Fetching Data:' + error);
     }
+}
+
+function addMarkers(locations) {
+    // Remove existing markers from the map
+    map.markers.forEach(marker => marker.remove());
+    map.markers = [];  // Clear the markers array
+
+    // Create a map to store incident counts for each neighborhood
+    const incidentCounts = new Map();
+
+    // Count incidents for each neighborhood
+    crimes.value.forEach(incident => {
+        const neighborhood = incident.neighborhood_number;
+        incidentCounts.set(neighborhood, (incidentCounts.get(neighborhood) || 0) + 1);
+    });
+
+    // Add new markers to the map
+    locations.forEach((location, index) => {
+        const marker = L.marker(location)
+            .addTo(map.leaflet);
+
+        // Get the neighborhood number for this marker
+        const neighborhoodNumber = index + 1;
+
+        // Get incident count for this neighborhood
+        const incidentCount = incidentCounts.get(neighborhoodNumber) || 0;
+
+        // Get neighborhood name
+        const neighborhoodName = crimes.value.find(incident => incident.neighborhood_number === neighborhoodNumber)?.neighborhood_name || 'Unknown';
+
+        // Create a tooltip with neighborhood name and incident count
+        marker.bindTooltip(`Neighborhood ${neighborhoodName}: ${incidentCount} incidents`, { permanent: true, direction: 'top' });
+
+        map.markers.push(marker);
+    });
 }
 
 // Function called when user presses 'OK' on dialog box
