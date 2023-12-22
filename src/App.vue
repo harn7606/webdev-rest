@@ -271,7 +271,7 @@ function findLocation() {
 
 <template>
     
-    <h1 style="text-align: center;">St. Paul Crime Map</h1>
+    <h1 style="text-align: center;"><b>St. Paul Crime Map</b></h1>
     <dialog id="rest-dialog" open>
         <h1 class="dialog-header">St. Paul Crime REST API</h1>
         <label class="dialog-label">URL: </label>
