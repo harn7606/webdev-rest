@@ -361,7 +361,7 @@ function findLocation() {
             <td>{{ incident.code }}</td>
             <td>{{ incident.incident }}</td>
             <td>{{ incident.police_grid }}</td>
-            <td>{{ incident.neighborhood_number }}</td>
+            <td>{{ incident.neighborhood_name }}</td>
             <td>{{ incident.block }}</td>
         </tr>
     </tbody>

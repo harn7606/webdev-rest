@@ -15,10 +15,27 @@
             crossorigin=""></script>
     <!-- Custom Style -->
     <link rel="stylesheet" href="css/style.css"/>
+    
     <!-- Vue App -->
     <script type="module" src="src/main.js"></script>
+    <style>
+        a {
+            color: black;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
+
+    <div class="grid-x grid-padding-x">
+        <div class="cell small-12 medium-6 large-6" style="color:black">
+            <a href="index.html"><h4><center><b>Home</b></center></h4></a>
+        </div>
+        <div class="cell small-12 medium-6 large-6" style="color:black">
+            <a href="about.html"><h4><center>About</center></h4></a>
+        </div>
+        
+    </div>
     <!-- Main app (map, crime table, and filters) -->
     <div id="app"></div>
     
